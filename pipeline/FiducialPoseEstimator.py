@@ -47,7 +47,8 @@ class SquareTargetPoseEstimator(PoseEstimator):
             print(e)
             return None
         return FiducialPoseObservation(
-            image_observation.tag_id,
+            [image_observation.tag_id],
+            False,
             openCvPoseToWpilib(tvecs[0], rvecs[0]),
             errors[0][0],
             openCvPoseToWpilib(tvecs[1], rvecs[1]),

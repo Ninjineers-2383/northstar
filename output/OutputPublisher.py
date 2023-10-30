@@ -45,7 +45,6 @@ class NTOutputPublisher(OutputPublisher):
         if fps is not None:
             self._fps_pub.set(fps)
         observation_data: List[float] = [0]
-        demo_observation_data: List[float] = []
         if observation is not None:
             observation_data[0] = 1
             observation_data.append(observation.error_0)
@@ -75,8 +74,7 @@ class NTOutputPublisher(OutputPublisher):
                     observation.pose_1.rotation().getQuaternion().Z()
                 )
             for tag_id in observation.tag_ids:
-                observation_data.append(tag_id)
+                observation_data.append(
+                    tag_id
+                )  # We know this will be 1 if [0] is 2 or 2 if [0] is 1
         self._observations_pub.set(observation_data, math.floor(timestamp * 1000000))
-        self._demo_observations_pub.set(
-            demo_observation_data, math.floor(timestamp * 1000000)
-        )

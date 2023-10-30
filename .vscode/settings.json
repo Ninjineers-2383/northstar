@@ -10,6 +10,7 @@
     "fiducials",
     "imsize",
     "Mjpeg",
+    "multitag",
     "ndarray",
     "ntcore",
     "rvec",

@@ -14,10 +14,9 @@ from config.ConfigSource import ConfigSource, FileConfigSource, NTConfigSource
 from output.OutputPublisher import NTOutputPublisher, OutputPublisher
 from output.overlay_util import overlay_image_observation
 from output.StreamServer import MjpegServer
-from pipeline.CameraPoseEstimator import MultiTargetCameraPoseEstimator
+from pipeline.FiducialPoseEstimator import SquareTargetPoseEstimator
 from pipeline.Capture import GStreamerCapture
 from pipeline.FiducialDetector import ArucoFiducialDetector
-from pipeline.PoseEstimator import SquareTargetPoseEstimator
 
 
 if __name__ == "__main__":
@@ -28,8 +27,8 @@ if __name__ == "__main__":
 
     capture = GStreamerCapture()
     fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_16h5)
-    camera_pose_estimator = MultiTargetCameraPoseEstimator()
-    tag_pose_estimator = SquareTargetPoseEstimator()
+    # camera_pose_estimator = MultiTargetCameraPoseEstimator()
+    fiducial_pose_estimator = SquareTargetPoseEstimator()
     output_publisher: OutputPublisher = NTOutputPublisher()
     stream_server = MjpegServer()
     calibration_session = CalibrationSession()
@@ -74,10 +73,11 @@ if __name__ == "__main__":
             # Normal mode
             image_observations = fiducial_detector.detect_fiducials(image, config)
             [overlay_image_observation(image, x) for x in image_observations]
-            camera_pose_observation = camera_pose_estimator.solve_camera_pose(
-                image_observations, config
-            )
-            output_publisher.send(config, timestamp, camera_pose_observation, fps)
+            for image_observation in image_observations:
+                fiducial_pose_observation = fiducial_pose_estimator.solve_fiducial_pose(
+                    image_observation, config
+                )
+                output_publisher.send(config, timestamp, fiducial_pose_observation, fps)
 
         else:
             # No calibration
