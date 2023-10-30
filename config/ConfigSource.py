@@ -28,11 +28,18 @@ class FileConfigSource(ConfigSource):
             config_store.local_config.stream_port = config_data["stream_port"]
 
         # Get calibration
-        calibration_store = cv2.FileStorage(self.CALIBRATION_FILENAME, cv2.FILE_STORAGE_READ)
+        calibration_store = cv2.FileStorage(
+            self.CALIBRATION_FILENAME, cv2.FILE_STORAGE_READ
+        )
         camera_matrix = calibration_store.getNode("camera_matrix").mat()
-        distortion_coefficients = calibration_store.getNode("distortion_coefficients").mat()
+        distortion_coefficients = calibration_store.getNode(
+            "distortion_coefficients"
+        ).mat()
         calibration_store.release()
-        if type(camera_matrix) == numpy.ndarray and type(distortion_coefficients) == numpy.ndarray:
+        if (
+            type(camera_matrix) is numpy.ndarray
+            and type(distortion_coefficients) is numpy.ndarray
+        ):
             config_store.local_config.camera_matrix = camera_matrix
             config_store.local_config.distortion_coefficients = distortion_coefficients
             config_store.local_config.has_calibration = True
@@ -53,34 +60,50 @@ class NTConfigSource(ConfigSource):
         # Initialize subscribers on first call
         if not self._init_complete:
             nt_table = ntcore.NetworkTableInstance.getDefault().getTable(
-                "/" + config_store.local_config.device_id + "/config")
-            self._camera_id_sub = nt_table.getIntegerTopic("camera_id").subscribe(RemoteConfig.camera_id)
+                "/" + config_store.local_config.device_id + "/config"
+            )
+            self._camera_id_sub = nt_table.getIntegerTopic("camera_id").subscribe(
+                RemoteConfig.camera_id
+            )
             self._camera_resolution_width_sub = nt_table.getIntegerTopic(
-                "camera_resolution_width").subscribe(RemoteConfig.camera_resolution_width)
+                "camera_resolution_width"
+            ).subscribe(RemoteConfig.camera_resolution_width)
             self._camera_resolution_height_sub = nt_table.getIntegerTopic(
-                "camera_resolution_height").subscribe(RemoteConfig.camera_resolution_height)
+                "camera_resolution_height"
+            ).subscribe(RemoteConfig.camera_resolution_height)
             self._camera_auto_exposure_sub = nt_table.getIntegerTopic(
-                "camera_auto_exposure").subscribe(RemoteConfig.camera_auto_exposure)
+                "camera_auto_exposure"
+            ).subscribe(RemoteConfig.camera_auto_exposure)
             self._camera_exposure_sub = nt_table.getIntegerTopic(
-                "camera_exposure").subscribe(RemoteConfig.camera_exposure)
-            self._camera_gain_sub = nt_table.getIntegerTopic(
-                "camera_gain").subscribe(RemoteConfig.camera_gain)
+                "camera_exposure"
+            ).subscribe(RemoteConfig.camera_exposure)
+            self._camera_gain_sub = nt_table.getIntegerTopic("camera_gain").subscribe(
+                RemoteConfig.camera_gain
+            )
             self._fiducial_size_m_sub = nt_table.getDoubleTopic(
-                "fiducial_size_m").subscribe(RemoteConfig.fiducial_size_m)
-            self._tag_layout_sub = nt_table.getStringTopic(
-                "tag_layout").subscribe("")
+                "fiducial_size_m"
+            ).subscribe(RemoteConfig.fiducial_size_m)
+            self._tag_layout_sub = nt_table.getStringTopic("tag_layout").subscribe("")
             self._init_complete = True
 
         # Read config data
         config_store.remote_config.camera_id = self._camera_id_sub.get()
-        config_store.remote_config.camera_resolution_width = self._camera_resolution_width_sub.get()
-        config_store.remote_config.camera_resolution_height = self._camera_resolution_height_sub.get()
-        config_store.remote_config.camera_auto_exposure = self._camera_auto_exposure_sub.get()
+        config_store.remote_config.camera_resolution_width = (
+            self._camera_resolution_width_sub.get()
+        )
+        config_store.remote_config.camera_resolution_height = (
+            self._camera_resolution_height_sub.get()
+        )
+        config_store.remote_config.camera_auto_exposure = (
+            self._camera_auto_exposure_sub.get()
+        )
         config_store.remote_config.camera_exposure = self._camera_exposure_sub.get()
         config_store.remote_config.camera_gain = self._camera_gain_sub.get()
         config_store.remote_config.fiducial_size_m = self._fiducial_size_m_sub.get()
         try:
-            config_store.remote_config.tag_layout = json.loads(self._tag_layout_sub.get())
-        except:
+            config_store.remote_config.tag_layout = json.loads(
+                self._tag_layout_sub.get()
+            )
+        except Exception:
             config_store.remote_config.tag_layout = None
             pass

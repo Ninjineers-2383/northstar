@@ -1,24 +1,24 @@
 import sys
 import time
-from typing import Union
 
 import cv2
 import ntcore
 
-from calibration.CalibrationCommandSource import (CalibrationCommandSource,
-                                                  NTCalibrationCommandSource)
+from calibration.CalibrationCommandSource import (
+    CalibrationCommandSource,
+    NTCalibrationCommandSource,
+)
 from calibration.CalibrationSession import CalibrationSession
 from config.config import ConfigStore, LocalConfig, RemoteConfig
 from config.ConfigSource import ConfigSource, FileConfigSource, NTConfigSource
 from output.OutputPublisher import NTOutputPublisher, OutputPublisher
-from output.overlay_util import *
+from output.overlay_util import overlay_image_observation
 from output.StreamServer import MjpegServer
 from pipeline.CameraPoseEstimator import MultiTargetCameraPoseEstimator
 from pipeline.Capture import GStreamerCapture
 from pipeline.FiducialDetector import ArucoFiducialDetector
 from pipeline.PoseEstimator import SquareTargetPoseEstimator
 
-DEMO_ID = 29
 
 if __name__ == "__main__":
     config = ConfigStore(LocalConfig(), RemoteConfig())
@@ -61,7 +61,9 @@ if __name__ == "__main__":
         if calibration_command_source.get_calibrating(config):
             # Calibration mode
             was_calibrating = True
-            calibration_session.process_frame(image, calibration_command_source.get_capture_flag(config))
+            calibration_session.process_frame(
+                image, calibration_command_source.get_capture_flag(config)
+            )
 
         elif was_calibrating:
             # Finish calibration
@@ -73,12 +75,9 @@ if __name__ == "__main__":
             image_observations = fiducial_detector.detect_fiducials(image, config)
             [overlay_image_observation(image, x) for x in image_observations]
             camera_pose_observation = camera_pose_estimator.solve_camera_pose(
-                [x for x in image_observations if x.tag_id != DEMO_ID], config)
-            demo_image_observations = [x for x in image_observations if x.tag_id == DEMO_ID]
-            demo_pose_observation: Union[FiducialPoseObservation, None] = None
-            if len(demo_image_observations) > 0:
-                demo_pose_observation = tag_pose_estimator.solve_fiducial_pose(demo_image_observations[0], config)
-            output_publisher.send(config, timestamp, camera_pose_observation, demo_pose_observation, fps)
+                image_observations, config
+            )
+            output_publisher.send(config, timestamp, camera_pose_observation, fps)
 
         else:
             # No calibration

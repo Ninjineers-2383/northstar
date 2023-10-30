@@ -66,7 +66,9 @@ class MjpegServer(StreamServer):
                     self.send_header("Age", "0")
                     self.send_header("Cache-Control", "no-cache, private")
                     self.send_header("Pragma", "no-cache")
-                    self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=FRAME")
+                    self.send_header(
+                        "Content-Type", "multipart/x-mixed-replace; boundary=FRAME"
+                    )
                     self.end_headers()
                     try:
                         while True:
@@ -85,7 +87,11 @@ class MjpegServer(StreamServer):
                                 self.wfile.write(frame_data)
                                 self.wfile.write(b"\r\n")
                     except Exception as e:
-                        print("Removed streaming client %s: %s", self.client_address, str(e))
+                        print(
+                            "Removed streaming client %s: %s",
+                            self.client_address,
+                            str(e),
+                        )
                 else:
                     self.send_error(404)
                     self.end_headers()
@@ -101,7 +107,9 @@ class MjpegServer(StreamServer):
         server.serve_forever()
 
     def start(self, config_store: ConfigStore) -> None:
-        threading.Thread(target=self._run, daemon=True, args=(config_store.local_config.stream_port,)).start()
+        threading.Thread(
+            target=self._run, daemon=True, args=(config_store.local_config.stream_port,)
+        ).start()
 
     def set_frame(self, frame: cv2.Mat) -> None:
         self._frame = frame.copy()

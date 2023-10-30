@@ -3,7 +3,7 @@ from typing import List, Union
 
 import numpy
 import numpy.typing
-from wpimath.geometry import *
+from wpimath.geometry import Pose3d
 
 
 @dataclass(frozen=True)

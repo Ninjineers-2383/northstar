@@ -19,9 +19,12 @@ class NTCalibrationCommandSource(CalibrationCommandSource):
     def _init(self, config_store: ConfigStore):
         if not self._init_complete:
             nt_table = ntcore.NetworkTableInstance.getDefault().getTable(
-                "/" + config_store.local_config.device_id + "/calibration")
+                "/" + config_store.local_config.device_id + "/calibration"
+            )
             self._active_entry = nt_table.getBooleanTopic("active").getEntry(False)
-            self._capture_flag_entry = nt_table.getBooleanTopic("capture_flag").getEntry(False)
+            self._capture_flag_entry = nt_table.getBooleanTopic(
+                "capture_flag"
+            ).getEntry(False)
             self._active_entry.set(False)
             self._capture_flag_entry.set(False)
             self._init_complete = True
