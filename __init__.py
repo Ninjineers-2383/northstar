@@ -42,46 +42,56 @@ if __name__ == "__main__":
     last_print = 0
     was_calibrating = False
     while True:
-        remote_config_source.update(config)
-        timestamp = time.time()
-        success, image = capture.get_frame(config)
-        if not success:
-            time.sleep(0.5)
-            continue
+        try:
+            remote_config_source.update(config)
+            timestamp = time.time()
+            success, image = capture.get_frame(config)
+            if not success:
+                time.sleep(0.5)
+                continue
 
-        fps = None
-        frame_count += 1
-        if time.time() - last_print > 1:
-            last_print = time.time()
-            fps = frame_count
-            print("Running at", frame_count, "fps")
-            frame_count = 0
+            fps = None
+            frame_count += 1
+            if time.time() - last_print > 1:
+                last_print = time.time()
+                fps = frame_count
+                print("Running at", frame_count, "fps")
+                frame_count = 0
 
-        if calibration_command_source.get_calibrating(config):
-            # Calibration mode
-            was_calibrating = True
-            calibration_session.process_frame(
-                image, calibration_command_source.get_capture_flag(config)
-            )
-
-        elif was_calibrating:
-            # Finish calibration
-            calibration_session.finish()
-            sys.exit(0)
-
-        elif config.local_config.has_calibration:
-            # Normal mode
-            image_observations = fiducial_detector.detect_fiducials(image, config)
-            [overlay_image_observation(image, x) for x in image_observations]
-            for image_observation in image_observations:
-                fiducial_pose_observation = fiducial_pose_estimator.solve_fiducial_pose(
-                    image_observation, config
+            if calibration_command_source.get_calibrating(config):
+                # Calibration mode
+                was_calibrating = True
+                calibration_session.process_frame(
+                    image, calibration_command_source.get_capture_flag(config)
                 )
-                output_publisher.send(config, timestamp, fiducial_pose_observation, fps)
 
-        else:
-            # No calibration
-            print("No calibration found")
-            time.sleep(0.5)
+            elif was_calibrating:
+                # Finish calibration
+                calibration_session.finish()
+                sys.exit(0)
 
-        stream_server.set_frame(image)
+            elif config.local_config.has_calibration:
+                # Normal mode
+                image_observations = fiducial_detector.detect_fiducials(image, config)
+                [overlay_image_observation(image, x) for x in image_observations]
+                for image_observation in image_observations:
+                    fiducial_pose_observation = (
+                        fiducial_pose_estimator.solve_fiducial_pose(
+                            image_observation, config
+                        )
+                    )
+                    output_publisher.send(
+                        config, timestamp, fiducial_pose_observation, fps
+                    )
+
+            else:
+                # No calibration
+                print("No calibration found")
+                time.sleep(0.5)
+
+            stream_server.set_frame(image)
+        except KeyboardInterrupt:
+            print("Interrupted")
+            break
+
+    capture.stop()

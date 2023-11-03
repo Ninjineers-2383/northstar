@@ -17,8 +17,8 @@ class FiducialDetector:
 
 class ArucoFiducialDetector(FiducialDetector):
     def __init__(self, dictionary_id) -> None:
-        self._aruco_dict = cv2.aruco.Dictionary_get(dictionary_id)
-        self._aruco_params = cv2.aruco.DetectorParameters_create()
+        self._aruco_dict = cv2.aruco.getPredefinedDictionary(dictionary_id)
+        self._aruco_params = cv2.aruco.DetectorParameters()
 
     def detect_fiducials(
         self, image: cv2.Mat, config_store: ConfigStore

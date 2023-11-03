@@ -13,8 +13,8 @@ class ConfigSource:
 
 
 class FileConfigSource(ConfigSource):
-    CONFIG_FILENAME = "config.json"
-    CALIBRATION_FILENAME = "calibration.json"
+    CONFIG_FILENAME = "/config/config.json"
+    CALIBRATION_FILENAME = "/config/calibration.json"
 
     def __init__(self) -> None:
         pass
@@ -23,6 +23,7 @@ class FileConfigSource(ConfigSource):
         # Get config
         with open(self.CONFIG_FILENAME, "r") as config_file:
             config_data = json.loads(config_file.read())
+            config_store.local_config.camera_id = config_data["camera_id"]
             config_store.local_config.device_id = config_data["device_id"]
             config_store.local_config.server_ip = config_data["server_ip"]
             config_store.local_config.stream_port = config_data["stream_port"]
@@ -47,7 +48,6 @@ class FileConfigSource(ConfigSource):
 
 class NTConfigSource(ConfigSource):
     _init_complete: bool = False
-    _camera_id_sub: ntcore.IntegerSubscriber
     _camera_resolution_width_sub: ntcore.IntegerSubscriber
     _camera_resolution_height_sub: ntcore.IntegerSubscriber
     _camera_auto_exposure_sub: ntcore.IntegerSubscriber
@@ -61,9 +61,6 @@ class NTConfigSource(ConfigSource):
         if not self._init_complete:
             nt_table = ntcore.NetworkTableInstance.getDefault().getTable(
                 "/" + config_store.local_config.device_id + "/config"
-            )
-            self._camera_id_sub = nt_table.getIntegerTopic("camera_id").subscribe(
-                RemoteConfig.camera_id
             )
             self._camera_resolution_width_sub = nt_table.getIntegerTopic(
                 "camera_resolution_width"
@@ -87,7 +84,6 @@ class NTConfigSource(ConfigSource):
             self._init_complete = True
 
         # Read config data
-        config_store.remote_config.camera_id = self._camera_id_sub.get()
         config_store.remote_config.camera_resolution_width = (
             self._camera_resolution_width_sub.get()
         )

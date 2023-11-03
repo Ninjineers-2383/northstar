@@ -46,6 +46,8 @@ class SquareTargetPoseEstimator(PoseEstimator):
         except Exception as e:
             print(e)
             return None
+        if len(rvecs) == 0 or len(tvecs) == 0:
+            return None
         return FiducialPoseObservation(
             [image_observation.tag_id],
             False,

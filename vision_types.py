@@ -14,7 +14,7 @@ class FiducialImageObservation:
 
 @dataclass(frozen=True)
 class PoseObservation:
-    tag_id: List[int]
+    tag_ids: List[int]
     multitag: bool
     pose_0: Pose3d
     error_0: float
