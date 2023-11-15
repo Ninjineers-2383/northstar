@@ -16,7 +16,7 @@ Then in the new config folder add the following json as `config.json` ensuring y
 
 ```json
 {
-  "camera_id": 0,
+  "camera": "/dev/video0",
   "device_id": "northstar",
   "server_ip": "10.TE.AM.2",
   "stream_port": 8000

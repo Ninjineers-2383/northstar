@@ -23,7 +23,7 @@ class FileConfigSource(ConfigSource):
         # Get config
         with open(self.CONFIG_FILENAME, "r") as config_file:
             config_data = json.loads(config_file.read())
-            config_store.local_config.camera_id = config_data["camera_id"]
+            config_store.local_config.camera = config_data["camera"]
             config_store.local_config.device_id = config_data["device_id"]
             config_store.local_config.server_ip = config_data["server_ip"]
             config_store.local_config.stream_port = config_data["stream_port"]

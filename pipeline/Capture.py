@@ -55,7 +55,7 @@ class DefaultCapture(Capture):
             self._video = None
 
         if self._video is None:
-            self._video = cv2.VideoCapture(config_store.local_config.camera_id)
+            self._video = cv2.VideoCapture(config_store.local_config.camera)
             self._video.set(
                 cv2.CAP_PROP_FRAME_WIDTH,
                 config_store.remote_config.camera_resolution_width,
@@ -100,8 +100,8 @@ class GStreamerCapture(Capture):
         if self._video is None:
             print("Starting capture session")
             src = (
-                "v4l2src device=/dev/video"
-                + str(config_store.local_config.camera_id)
+                "v4l2src device="
+                + config_store.local_config.camera
                 + ' extra_controls="c,exposure_auto='
                 + str(config_store.remote_config.camera_auto_exposure)
                 + ",exposure_absolute="

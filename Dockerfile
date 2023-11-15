@@ -1,4 +1,4 @@
-FROM --platform=arm64 ghcr.io/ninjineers-2383/opencv-python-arm:4.8.1-py3.11.6
+FROM ghcr.io/ninjineers-2383/opencv-python:4.8.1-py3.11.6
 
 # Add v4l2src plugin
 RUN apt-get update; \
