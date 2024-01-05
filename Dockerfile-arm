@@ -1,5 +1,4 @@
-FROM ghcr.io/ninjineers-2383/opencv-python:4.8.1-py3.11.6
-
+FROM --platform=arm64 ghcr.io/ninjineers-2383/docker-opencv:4.8.1-py3.11-arm
 # Add v4l2src plugin
 RUN apt-get update; \
     apt-get install -y \
@@ -7,7 +6,7 @@ RUN apt-get update; \
 
 WORKDIR /northstar
 
-RUN pip3 install --find-links=https://tortall.net/~robotpy/wheels/2023/raspbian/ robotpy==2023.4.3.1
+RUN pip3 install robotpy==2023.4.3.1 --find-links=https://tortall.net/~robotpy/wheels/2023/raspbian/
 
 COPY requirements.txt requirements.txt
 
