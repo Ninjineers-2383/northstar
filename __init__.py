@@ -26,7 +26,7 @@ if __name__ == "__main__":
     calibration_command_source: CalibrationCommandSource = NTCalibrationCommandSource()
 
     capture = GStreamerCapture()
-    fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_16h5)
+    fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_36H11)
     # camera_pose_estimator = MultiTargetCameraPoseEstimator()
     fiducial_pose_estimator = SquareTargetPoseEstimator()
     output_publisher: OutputPublisher = NTOutputPublisher()

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     local_config_source.update(config)
     config.remote_config.fiducial_size_m = inches_to_meters(6.0)
 
-    fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_16h5)
+    fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_36H11)
     pose_estimator = SquareTargetPoseEstimator()
 
     image = cv2.imread(IMAGE_NAME)
