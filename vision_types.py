@@ -20,13 +20,3 @@ class PoseObservation:
     error_0: float
     pose_1: Union[Pose3d, None]
     error_1: Union[float, None]
-
-
-@dataclass(frozen=True)
-class FiducialPoseObservation(PoseObservation):
-    pass
-
-
-@dataclass(frozen=True)
-class CameraPoseObservation(PoseObservation):
-    pass

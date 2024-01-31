@@ -3,7 +3,7 @@ from typing import List, Union
 
 import ntcore
 from config.config import ConfigStore
-from vision_types import CameraPoseObservation
+from vision_types import PoseObservation
 
 
 class OutputPublisher:
@@ -11,9 +11,12 @@ class OutputPublisher:
         self,
         config_store: ConfigStore,
         timestamp: float,
-        observation: Union[CameraPoseObservation, None],
+        observation: Union[PoseObservation, None],
         fps: Union[int, None] = None,
     ) -> None:
+        raise NotImplementedError
+
+    def error(self, message: str) -> None:
         raise NotImplementedError
 
 
@@ -26,7 +29,7 @@ class NTOutputPublisher(OutputPublisher):
         self,
         config_store: ConfigStore,
         timestamp: float,
-        observation: Union[CameraPoseObservation, None],
+        observation: Union[PoseObservation, None],
         fps: Union[int, None] = None,
     ) -> None:
         # Initialize publishers on first call
@@ -78,3 +81,8 @@ class NTOutputPublisher(OutputPublisher):
                     tag_id
                 )  # We know this will be 1 if [0] is 2 or 2 if [0] is 1
         self._observations_pub.set(observation_data, math.floor(timestamp * 1000000))
+
+    def error(self, message: str) -> None:
+        ntcore.NetworkTableInstance.getDefault().getTable("/output").getEntry(
+            "error"
+        ).setString(message)

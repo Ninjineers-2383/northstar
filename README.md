@@ -1,6 +1,6 @@
 # Northstar
 
-Northstar is a package by FRC 6328, Mechanical Advantage, that they are unable to support. The Ninjineers, FRC 2383, have decided to create their own fork to be used by teams that want a lightweight distributed april tag detection system.
+Northstar is a package by FRC 6328, Mechanical Advantage, that they are unable to support. Ninjineers, FRC 2383, have decided to create their own fork to be used by teams that want a lightweight distributed april tag detection system.
 
 The documentation is currently nonexistent but @henrylec on discord would love to help out in our server https://discord.gg/VQ8EJDWKaS
 

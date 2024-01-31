@@ -3,7 +3,10 @@ from typing import Union
 import cv2
 import numpy
 from config.config import ConfigStore
-from vision_types import FiducialImageObservation, FiducialPoseObservation
+from vision_types import (
+    FiducialImageObservation,
+    PoseObservation,
+)
 
 from pipeline.coordinate_systems import openCvPoseToWpilib
 
@@ -14,7 +17,7 @@ class PoseEstimator:
 
     def solve_fiducial_pose(
         self, image_observation: FiducialImageObservation, config_store: ConfigStore
-    ) -> Union[FiducialPoseObservation, None]:
+    ) -> Union[PoseObservation, None]:
         raise NotImplementedError
 
 
@@ -24,7 +27,7 @@ class SquareTargetPoseEstimator(PoseEstimator):
 
     def solve_fiducial_pose(
         self, image_observation: FiducialImageObservation, config_store: ConfigStore
-    ) -> Union[FiducialPoseObservation, None]:
+    ) -> Union[PoseObservation, None]:
         fid_size = config_store.remote_config.fiducial_size_m
         object_points = numpy.array(
             [
@@ -48,7 +51,7 @@ class SquareTargetPoseEstimator(PoseEstimator):
             return None
         if len(rvecs) == 0 or len(tvecs) == 0:
             return None
-        return FiducialPoseObservation(
+        return PoseObservation(
             [image_observation.tag_id],
             False,
             openCvPoseToWpilib(tvecs[0], rvecs[0]),

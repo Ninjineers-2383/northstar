@@ -3,11 +3,16 @@ from typing import List, Union
 import cv2
 import numpy
 from config.config import ConfigStore
-from vision_types import CameraPoseObservation, FiducialImageObservation
+from vision_types import (
+    FiducialImageObservation,
+    PoseObservation,
+)
 from wpimath.geometry import Pose3d, Rotation3d, Quaternion, Translation3d, Transform3d
 
 from pipeline.coordinate_systems import openCvPoseToWpilib, wpilibTranslationToOpenCv
-from pipeline.FiducialPoseEstimator import FiducialPoseEstimator
+from pipeline.FiducialPoseEstimator import (
+    SquareTargetPoseEstimator,
+)
 
 
 class CameraPoseEstimator:
@@ -18,29 +23,31 @@ class CameraPoseEstimator:
         self,
         image_observations: List[FiducialImageObservation],
         config_store: ConfigStore,
-    ) -> Union[CameraPoseObservation, None]:
+    ) -> Union[PoseObservation, None]:
         raise NotImplementedError
 
 
 class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
-    fallback_estimator: FiducialPoseEstimator = None
+    fallback_estimator: SquareTargetPoseEstimator = None
 
     def __init__(self) -> None:
-        self.fallback_estimator: FiducialPoseEstimator = FiducialPoseEstimator()
+        self.fallback_estimator: SquareTargetPoseEstimator = SquareTargetPoseEstimator()
 
     def solve_camera_pose(
         self,
         image_observations: List[FiducialImageObservation],
         config_store: ConfigStore,
-    ) -> Union[CameraPoseObservation, None]:
-        # Exit if no tag layout available or only one observation
-        if (
-            config_store.remote_config.tag_layout is None
-            or len(image_observations) == 1
-        ):
-            return self.fallback_estimator.solve_fiducial_pose(
-                image_observations[0], config_store
-            )
+    ) -> Union[List[PoseObservation], None]:
+        # If only one tag raise exception
+        if len(image_observations) == 1:
+            raise Exception("Only one tag detected, cannot solve camera pose")
+
+        # If no tag layout return a list of poses from the fallback estimator
+        if config_store.remote_config.tag_layout is None:
+            return [
+                self.fallback_estimator.solve_fiducial_pose(observation, config_store)
+                for observation in image_observations
+            ]
 
         # Exit if no observations available
         if len(image_observations) == 0:
@@ -104,12 +111,10 @@ class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
                 tag_ids.append(observation.tag_id)
                 tag_poses.append(tag_pose)
 
-        # Single tag, return two poses
+        # Single tag, raise exception
         if len(tag_ids) == 1:
-            # This is technically wrong as there may be multiple observations
-            # but only one within the field map
-            return self.fallback_estimator.solve_fiducial_pose(
-                image_observations[0], config_store
+            raise Exception(
+                "Only one tag in layout, make sure all tags are in the layout"
             )
 
         # Multi-tag, return one pose
@@ -138,6 +143,8 @@ class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
             )
 
             # Return result
-            return CameraPoseObservation(
-                tag_ids, True, field_to_camera_pose, errors[0][0], None, None
-            )
+            return [
+                PoseObservation(
+                    tag_ids, True, field_to_camera_pose, errors[0][0], None, None
+                )
+            ]

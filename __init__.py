@@ -14,6 +14,7 @@ from config.ConfigSource import ConfigSource, FileConfigSource, NTConfigSource
 from output.OutputPublisher import NTOutputPublisher, OutputPublisher
 from output.overlay_util import overlay_image_observation
 from output.StreamServer import MjpegServer
+from pipeline.CameraPoseEstimator import MultiTargetCameraPoseEstimator
 from pipeline.FiducialPoseEstimator import SquareTargetPoseEstimator
 from pipeline.Capture import GStreamerCapture
 from pipeline.FiducialDetector import ArucoFiducialDetector
@@ -27,7 +28,7 @@ if __name__ == "__main__":
 
     capture = GStreamerCapture()
     fiducial_detector = ArucoFiducialDetector(cv2.aruco.DICT_APRILTAG_36H11)
-    # camera_pose_estimator = MultiTargetCameraPoseEstimator()
+    camera_pose_estimator = MultiTargetCameraPoseEstimator()
     fiducial_pose_estimator = SquareTargetPoseEstimator()
     output_publisher: OutputPublisher = NTOutputPublisher()
     stream_server = MjpegServer()
@@ -72,18 +73,21 @@ if __name__ == "__main__":
 
             elif config.local_config.has_calibration:
                 # Normal mode
-                image_observations = fiducial_detector.detect_fiducials(image, config)
-                [overlay_image_observation(image, x) for x in image_observations]
-                for image_observation in image_observations:
-                    fiducial_pose_observation = (
-                        fiducial_pose_estimator.solve_fiducial_pose(
-                            image_observation, config
-                        )
+                try:
+                    image_observations = fiducial_detector.detect_fiducials(
+                        image, config
                     )
-                    output_publisher.send(
-                        config, timestamp, fiducial_pose_observation, fps
+                    [overlay_image_observation(image, x) for x in image_observations]
+                    pose_observation = camera_pose_estimator.solve_camera_pose(
+                        image_observations, config
                     )
-
+                    if pose_observation is not None:
+                        for pose in pose_observation:
+                            output_publisher.send(config, timestamp, pose, fps)
+                except Exception as e:
+                    print(e)
+                    output_publisher.error(e.message)
+                    time.sleep(0.5)
             else:
                 # No calibration
                 print("No calibration found")
