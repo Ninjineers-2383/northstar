@@ -38,12 +38,11 @@ class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
         image_observations: List[FiducialImageObservation],
         config_store: ConfigStore,
     ) -> Union[List[PoseObservation], None]:
-        # If only one tag raise exception
-        if len(image_observations) == 1:
-            raise Exception("Only one tag detected, cannot solve camera pose")
-
-        # If no tag layout return a list of poses from the fallback estimator
-        if config_store.remote_config.tag_layout is None:
+        # If only one tag or no tag layout
+        if (
+            len(image_observations) == 1
+            or config_store.remote_config.tag_layout is None
+        ):
             return [
                 self.fallback_estimator.solve_fiducial_pose(observation, config_store)
                 for observation in image_observations

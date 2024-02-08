@@ -1,7 +1,7 @@
 import cv2
 import numpy
 from config.config import ConfigStore
-from vision_types import FiducialImageObservation, FiducialPoseObservation
+from vision_types import FiducialImageObservation, PoseObservation
 
 
 def overlay_image_observation(
@@ -13,7 +13,7 @@ def overlay_image_observation(
 
 
 def overlay_pose_observation(
-    image: cv2.Mat, config_store: ConfigStore, observation: FiducialPoseObservation
+    image: cv2.Mat, config_store: ConfigStore, observation: PoseObservation
 ) -> None:
     cv2.drawFrameAxes(
         image,

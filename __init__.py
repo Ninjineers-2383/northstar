@@ -86,7 +86,7 @@ if __name__ == "__main__":
                             output_publisher.send(config, timestamp, pose, fps)
                 except Exception as e:
                     print(e)
-                    output_publisher.error(e.message)
+                    output_publisher.error(str(e))
                     time.sleep(0.5)
             else:
                 # No calibration
