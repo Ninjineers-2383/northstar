@@ -43,6 +43,7 @@ class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
             len(image_observations) == 1
             or config_store.remote_config.tag_layout is None
         ):
+            print(f"Fallback to single pose with {len(image_observations)} observations and {config_store.remote_config.tag_layout}")
             return [
                 self.fallback_estimator.solve_fiducial_pose(observation, config_store)
                 for observation in image_observations
@@ -112,9 +113,14 @@ class MultiTargetCameraPoseEstimator(CameraPoseEstimator):
 
         # Single tag, raise exception
         if len(tag_ids) == 1:
-            raise Exception(
-                "Only one tag in layout, make sure all tags are in the layout"
-            )
+            # raise Exception(
+            #     "Only one tag in layout, make sure all tags are in the layout"
+            # )
+            print("Fallback to single pose estimation with one recognized tag id")
+            return [
+                self.fallback_estimator.solve_fiducial_pose(observation, config_store)
+                for observation in image_observations
+            ]
 
         # Multi-tag, return one pose
         else:

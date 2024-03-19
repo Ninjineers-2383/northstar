@@ -69,7 +69,7 @@ if __name__ == "__main__":
             elif was_calibrating:
                 # Finish calibration
                 calibration_session.finish()
-                sys.exit(0)
+                sys.exit(1)
 
             elif config.local_config.has_calibration:
                 # Normal mode

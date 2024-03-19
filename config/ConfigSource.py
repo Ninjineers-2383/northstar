@@ -80,7 +80,9 @@ class NTConfigSource(ConfigSource):
             self._fiducial_size_m_sub = nt_table.getDoubleTopic(
                 "fiducial_size_m"
             ).subscribe(RemoteConfig.fiducial_size_m)
-            self._tag_layout_sub = nt_table.getStringTopic("tag_layout").subscribe("")
+            self._tag_layout_sub = nt_table.getStringTopic(
+                "tag_layout"
+                ).subscribe("")
             self._init_complete = True
 
         # Read config data
@@ -102,4 +104,5 @@ class NTConfigSource(ConfigSource):
             )
         except Exception:
             config_store.remote_config.tag_layout = None
+            print("Could not deserialize tag layout")
             pass

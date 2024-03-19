@@ -1,8 +1,8 @@
 {
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "editor.defaultFormatter": "ms-python.flake8",
+    "editor.formatOnSave": true
   },
-  "python.formatting.provider": "none",
   "cSpell.words": [
     "APRILTAG",
     "Aruco",
