@@ -102,9 +102,9 @@ class GStreamerCapture(Capture):
             src = (
                 "v4l2src device="
                 + config_store.local_config.camera
-                + ' extra_controls="c,exposure_auto='
+                + ' extra_controls="c,auto_exposure='
                 + str(config_store.remote_config.camera_auto_exposure)
-                + ",exposure_absolute="
+                + ",exposure_time_absolute="
                 + str(config_store.remote_config.camera_exposure)
                 + ",gain="
                 + str(config_store.remote_config.camera_gain)
